@@ -1,6 +1,6 @@
 require(
-  ['actor', 'grid', 'schema', 'actorModel', 'utils/gridHelpers'],
-  (Actor, Grid, schema, ActorModel, GridHelpers) => 
+  ['actor', 'grid', 'schema', 'actorModel', 'utils/gridHelpers', 'utils/mathHelpers'],
+  (Actor, Grid, {T, J, L}, ActorModel, GridHelpers, MathHelpers) => 
 {
   function run() {
     const grid = new Grid(30, 15);
@@ -13,7 +13,7 @@ require(
         alert('gameOver');
         destroy();
       } else {
-        let current = [schema.T, schema.L][Math.round(Math.random())];
+        let current = [T, J, L][MathHelpers.getRandomInt(0, 3)]
         let actor = new Actor(gridCoords, grid, new ActorModel(current));
       
         app.append(actor.el);

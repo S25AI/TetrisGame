@@ -87,9 +87,54 @@ define(
       }
 
       if (e.code === 'ArrowUp') {
-        this.rotateIndex = this.actorModel.updateRotateIndex(this.rotateIndex);
-        this.draw(this.rotateIndex);
+        this.tryToRedraw();
       }
+    }
+
+    tryToRedraw() {
+      let {
+        left,
+        top
+      } = this.getPosition();
+
+      let {
+        bottomGrid,
+        topGrid,
+        leftGrid,
+        rightGrid
+      } = this.gridCoords;
+
+      let newRotateIndex = (this.rotateIndex + 1) % 4;
+
+      let {model} = this.grid;
+      let bottomOffsetsArr = this.actorModel.modelOffsets[newRotateIndex];
+      let leftOffsetsArr = this.getOffsetsArr('left', newRotateIndex);
+      let rightOffsetsArr = this.getOffsetsArr('right', newRotateIndex);
+
+      for (let i = 0; i < this.size; i++) {
+        if (model[top + bottomOffsetsArr[i]] && model[top + bottomOffsetsArr[i]][left + i]) {
+          return;
+        }
+
+        if (bottomOffsetsArr[i] > 5) continue;
+
+        if (
+          (top + bottomOffsetsArr[i]) * GRID_SIZE + GRID_SIZE > bottomGrid - topGrid ||
+          (left + leftOffsetsArr[i]) * GRID_SIZE < 0 ||
+          (left + rightOffsetsArr[i]) * GRID_SIZE >= rightGrid - leftGrid
+        ) return;
+      }
+
+      this.rotateIndex = this.actorModel.updateRotateIndex(this.rotateIndex);
+      this.draw(this.rotateIndex);
+    }
+
+    getOffsetsArr(type, currentIndex) {
+      let method = type == 'left' ? 'indexOf' : 'lastIndexOf';
+      let value = type == 'left' ? 100 : 0;
+
+      return this.actorModel.schema.model[currentIndex]
+        .map(item => item[method]('0') === -1 ? value : item[method]('0'));
     }
 
     isBelowObstacle() {
@@ -115,8 +160,6 @@ define(
           return true;
         }
       }
-
-      return false;
     }
 
     isLeftObstacle() {
@@ -127,39 +170,17 @@ define(
 
       let {model} = this.grid;
 
+      let offsetsArr = this.getOffsetsArr('left', this.rotateIndex);
+
       for (let i = 0; i < this.size; i++) {
-        if (model[top + i][left - 1] == 1) {
+        if (model[top + i] && model[top + i][left - 1] == 1) {
+          return true;
+        }
+
+        if ((left + offsetsArr[i]) * GRID_SIZE - GRID_SIZE < 0) {
           return true;
         }
       }
-
-      let {leftGrid} = this.gridCoords;
-      let maxLeftPosition = leftGrid;
-      return this.getCurrentCoords().left - GRID_SIZE < maxLeftPosition;
-
-/*       isLeftObstacle() {
-        let {
-          left,
-          top
-        } = this.getPosition();
-  
-        let {model} = this.grid;
-        let offsetsArr = this.actorModel.schema.model[this.rotateIndex]
-          .map(item => item.indexOf('0') === -1 ? 100 : item.indexOf('0'));
-  
-  
-        for (let i = 0; i < this.size; i++) {
-          if (model[top + i][left - 1] == 1) {
-            return true;
-          }
-  
-          if ((left + offsetsArr[i]) * GRID_SIZE - GRID_SIZE < 0) {
-            return true;
-          }
-        }
-  
-        return false;
-      } */
     }
 
     isRightObstacle() {
@@ -168,18 +189,21 @@ define(
         top
       } = this.getPosition();
 
+      let {leftGrid, rightGrid} = this.gridCoords;
+
       let {model} = this.grid;
 
+      let offsetsArr = this.getOffsetsArr('right', this.rotateIndex);
+
       for (let i = 0; i < this.size; i++) {
-        if (model[top + i][left + this.size] == 1) {
+        if (model[top + i] && model[top + i][left + this.size] == 1) {
+          return true;
+        }
+
+        if ((left + offsetsArr[i]) * GRID_SIZE + GRID_SIZE >= rightGrid - leftGrid) {
           return true;
         }
       }
-
-      let {rightGrid} = this.gridCoords;
-      let maxRightPosition = rightGrid - this.size * GRID_SIZE;
-
-      return this.getCurrentCoords().left + GRID_SIZE > maxRightPosition;
     }
 
     updateActorPos({dir = 'top', cb, timerId}) {
