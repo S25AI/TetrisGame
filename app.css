@@ -56,7 +56,7 @@ body {
 }
 
 .block__container {
-  outline: 1px solid var(--clr-outline);
+  /* outline: 1px solid var(--clr-outline); */
   display: flex;
   flex-flow: column;
 }
@@ -72,4 +72,11 @@ body {
 
 .block__col {
   flex: 1
+}
+
+.block--absolute {
+  position: absolute;
+  background: var(--clr-white);
+  width: var(--size-width);
+  height: var(--size-width); 
 }

@@ -3,6 +3,7 @@ define(['utils/domHelpers', 'utils/gridHelpers', 'constants/index'], (dom, GridH
     constructor(rows, columns) {
       this.grid = dom.createGrid(rows, columns);
       this.gridModel = this.createGridModel(rows, columns);
+      this.upperActorIndex = Infinity;
     }
 
     get el() {
@@ -27,6 +28,28 @@ define(['utils/domHelpers', 'utils/gridHelpers', 'constants/index'], (dom, GridH
       return gridArr;
     }
 
+/*     checkGridRows() {
+      let len = 30 - this.upperActorIndex < 4 ? 30 - this.upperActorIndex : 4;
+      let stack = [];
+
+      for (let i = this.upperActorIndex; i < this.upperActorIndex + len; i++) {
+        for (let j = 0; j < 15; j++) {
+          if (this.gridModel[i][j] !== 1) {
+            stack.push(this.gridModel[i]);
+            break;
+          }
+        }
+      }
+
+      for (let i = this.upperActorIndex + len - 1; i >= this.upperActorIndex; i--) {
+        if (stack.length) {
+          this.gridModel[i] = stack.pop();
+        } else {
+          this.gridModel[i] = new Array(15).fill(0);
+        }
+      }
+    } */
+
     updateGridModel(lastActor) {
       if (!lastActor) return;
 
@@ -48,6 +71,10 @@ define(['utils/domHelpers', 'utils/gridHelpers', 'constants/index'], (dom, GridH
         for (let j = 0; j < size; j++) {
           if (this.gridModel[row + i]) {
             this.gridModel[row + i][col + j] = Number(modelSchema[i][j] === '0');
+
+            if (this.gridModel[row + i][col + j] == 1 && row + i < this.upperActorIndex) {
+              this.upperActorIndex = row + i;
+            }
           }
         }
       }

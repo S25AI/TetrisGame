@@ -1,6 +1,6 @@
 define(
   ['utils/domHelpers', 'constants/index'],
-  (dom, {GRID_SIZE}
+  (dom, {GRID_SIZE, GAME_CONTAINER}
 ) => {
   return class Actor {
     constructor(gridCoords, grid, actorModel) {
@@ -74,7 +74,29 @@ define(
       this.actor.classList.remove('moving-block');
       document.removeEventListener('keydown', this.handleKeyPress);
       let isGameOver = this.grid.updateGridModel(this);
+      //this.grid.checkGridRows();
+      this.actor.remove();
+      this.renderFigureCells();
       cb(isGameOver);
+    }
+
+    renderFigureCells() {
+      let {leftGrid, topGrid} = this.gridCoords;
+
+      for (let i = 0, len = this.grid.model.length; i < len; i++) {
+        for (let j = 0, rowLen = this.grid.model[i].length; j < rowLen; j++) {
+          let y = topGrid + i * GRID_SIZE;
+          let x = leftGrid + j * GRID_SIZE;
+          let isAlreadyInDOM = document.elementFromPoint(x, y).classList.contains('block--absolute');
+
+          if (this.grid.model[i][j] == 1 && !isAlreadyInDOM) {
+            let div = dom.elt('div', 'block--absolute');
+            div.style.top = y + 'px';
+            div.style.left = x + 'px';
+            GAME_CONTAINER.append(div);
+          }
+        }
+      }
     }
 
     handleKeyPress(e) {
@@ -88,6 +110,10 @@ define(
 
       if (e.code === 'ArrowUp') {
         this.tryToRedraw();
+      }
+
+      if (e.code === 'ArrowDown') {
+        this.updateActorPos({dir: 'top'});
       }
     }
 
@@ -229,7 +255,7 @@ define(
         }
       }
 
-      if (dir === 'top' && left === newLeftPosition && top === newTopPosition) {
+      if (dir === 'top' && cb && left === newLeftPosition && top === newTopPosition) {
         this.clear(cb, timerId);
         return;
       }
