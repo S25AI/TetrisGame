@@ -73,11 +73,15 @@ define(
       clearInterval(timerId);
       this.actor.classList.remove('moving-block');
       document.removeEventListener('keydown', this.handleKeyPress);
-      let isGameOver = this.grid.updateGridModel(this);
-      //this.grid.checkGridRows();
+      let gameStats = this.grid.updateGridModel(this);
+      this.removeAllFigureCells();
       this.actor.remove();
       this.renderFigureCells();
-      cb(isGameOver);
+      cb(gameStats);
+    }
+
+    removeAllFigureCells() {
+      Array.from(document.querySelectorAll('.block--absolute')).forEach(el => el.remove());
     }
 
     renderFigureCells() {

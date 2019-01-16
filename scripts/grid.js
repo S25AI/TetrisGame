@@ -4,6 +4,8 @@ define(['utils/domHelpers', 'utils/gridHelpers', 'constants/index'], (dom, GridH
       this.grid = dom.createGrid(rows, columns);
       this.gridModel = this.createGridModel(rows, columns);
       this.upperActorIndex = Infinity;
+      this.rowsCount = rows;
+      this.columnsCount = columns;
     }
 
     get el() {
@@ -28,12 +30,14 @@ define(['utils/domHelpers', 'utils/gridHelpers', 'constants/index'], (dom, GridH
       return gridArr;
     }
 
-/*     checkGridRows() {
-      let len = 30 - this.upperActorIndex < 4 ? 30 - this.upperActorIndex : 4;
+    checkGridRows() {
+      let len = this.rowsCount - this.upperActorIndex < 25 ? this.rowsCount - this.upperActorIndex : 25;
       let stack = [];
 
+      let deletedRowsCount = 0;
+
       for (let i = this.upperActorIndex; i < this.upperActorIndex + len; i++) {
-        for (let j = 0; j < 15; j++) {
+        for (let j = 0; j < this.columnsCount; j++) {
           if (this.gridModel[i][j] !== 1) {
             stack.push(this.gridModel[i]);
             break;
@@ -45,10 +49,13 @@ define(['utils/domHelpers', 'utils/gridHelpers', 'constants/index'], (dom, GridH
         if (stack.length) {
           this.gridModel[i] = stack.pop();
         } else {
-          this.gridModel[i] = new Array(15).fill(0);
+          this.gridModel[i] = new Array(this.columnsCount).fill(0);
+          deletedRowsCount += 1;
         }
       }
-    } */
+
+      return deletedRowsCount;
+    }
 
     updateGridModel(lastActor) {
       if (!lastActor) return;
@@ -64,13 +71,15 @@ define(['utils/domHelpers', 'utils/gridHelpers', 'constants/index'], (dom, GridH
       let modelSchema = lastActor.actorModel.schema.model[lastActor.actorModel.rotateIndex];
 
       if (row === 0) {
-        return true;
+        return {gameOver: true};
       }
 
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
           if (this.gridModel[row + i]) {
-            this.gridModel[row + i][col + j] = Number(modelSchema[i][j] === '0');
+            if (Number(modelSchema[i][j] === '0')) {
+              this.gridModel[row + i][col + j] = Number(modelSchema[i][j] === '0');
+            }
 
             if (this.gridModel[row + i][col + j] == 1 && row + i < this.upperActorIndex) {
               this.upperActorIndex = row + i;
@@ -78,6 +87,8 @@ define(['utils/domHelpers', 'utils/gridHelpers', 'constants/index'], (dom, GridH
           }
         }
       }
+
+      return {score: this.checkGridRows()}; 
     }
   }
 })
