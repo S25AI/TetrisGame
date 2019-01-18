@@ -203,7 +203,7 @@ define(
       let offsetsArr = this.getOffsetsArr('left', this.rotateIndex);
 
       for (let i = 0; i < this.size; i++) {
-        if (model[top + i] && model[top + i][left - 1] == 1) {
+        if (model[top + i] && model[top + i][left + offsetsArr[i] - 1] == 1) {
           return true;
         }
 
@@ -226,7 +226,7 @@ define(
       let offsetsArr = this.getOffsetsArr('right', this.rotateIndex);
 
       for (let i = 0; i < this.size; i++) {
-        if (model[top + i] && model[top + i][left + this.size] == 1) {
+        if (model[top + i] && model[top + i][left + offsetsArr[i] + 1] == 1) {
           return true;
         }
 
