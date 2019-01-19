@@ -22,18 +22,35 @@ require(
         alert('gameOver');
         destroy();
       } else {
-        let current = [T, J, L, Z, S, Q, I][MathHelpers.getRandomInt(0, 7)];
-        let actor = new Actor(gridCoords, grid, new ActorModel(current));
-      
+        let actor = new Actor(gridCoords, grid, new ActorModel(generateNewFigure()));
         GAME_CONTAINER.append(actor.el);
-
-        this.timerId = setInterval(() => {
-          actor.updateActorPos({cb: gameStart, timerId: this.timerId});
-        }, 500 / game.speed);
+        runNextStep(game, actor, gameStart);
       }
     }
   
     gameStart();
+  }
+
+  function generateNewFigure() {
+    return [T, J, L, Z, S, Q, I][MathHelpers.getRandomInt(0, 7)];
+  }
+
+  function runNextStep(game, actor, gameStart) {
+    let currentDate = Date.now();
+    let timerId = null;
+
+    const step = () => {
+      let date = Date.now();
+
+      if ((date - currentDate) >= 500 / game.speed) {
+        actor.updateActorPos({cb: gameStart, timerId});
+        currentDate = date;
+      }
+      
+      timerId = requestAnimationFrame(step);
+    };
+
+    timerId = requestAnimationFrame(step);
   }
 
   function destroy() {

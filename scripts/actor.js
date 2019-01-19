@@ -70,7 +70,7 @@ define(
     }
 
     clear(cb, timerId) {
-      clearInterval(timerId);
+      cancelAnimationFrame(timerId);
       this.actor.classList.remove('moving-block');
       document.removeEventListener('keydown', this.handleKeyPress);
       let gameStats = this.grid.updateGridModel(this);
